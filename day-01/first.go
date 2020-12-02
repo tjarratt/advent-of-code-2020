@@ -43,7 +43,7 @@ func main() {
 }
 
 // pragma mark - solutions
-func checkForFirstDesiredResult(given int, input []int, goal int, resultChan chan (intPair)) {
+func checkForFirstDesiredResult(given int, input []int, goal int, resultChan chan<- (intPair)) {
 	for _, i := range input {
 		if given+i != goal {
 			continue
@@ -54,7 +54,7 @@ func checkForFirstDesiredResult(given int, input []int, goal int, resultChan cha
 	}
 }
 
-func checkForSecondDesiredResult(given intPair, input []int, goal int, resultChan chan (intTrio)) {
+func checkForSecondDesiredResult(given intPair, input []int, goal int, resultChan chan<- (intTrio)) {
 	for _, num := range input {
 		if given.first+given.second+num != goal {
 			continue
