@@ -1,7 +1,6 @@
 package rules
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -20,15 +19,27 @@ func IsValid(password string, rule Rule) bool {
 	count := strings.Count(password, rule.Letter)
 
 	if count < rule.Minimum {
-		println("not enough", password, count, fmt.Sprintf("%#v", rule))
 		return false
 	}
 
 	if count > rule.Maximum {
-		println("too many", password, count, fmt.Sprintf("%#v", rule))
 		return false
 	}
 
-	println("just enough", password, count, fmt.Sprintf("%#v", rule))
 	return true
+}
+
+func IsValidTobogganPassword(password string, rule Rule) bool {
+	hasFirst := strings.EqualFold(string(password[rule.Minimum-1]), rule.Letter)
+	hasSecond := strings.EqualFold(string(password[rule.Maximum-1]), rule.Letter)
+
+	return xnor(hasFirst, hasSecond)
+}
+
+func xnor(a, b bool) bool {
+	if a && !b || !a && b {
+		return true
+	}
+
+	return false
 }

@@ -12,14 +12,20 @@ import (
 func main() {
 	input := readInput()
 
-	valid := 0
+	first_valid := 0
+	second_valid := 0
 	for _, toCheck := range input {
 		if IsValid(toCheck.Password, toCheck.Rule) {
-			valid += 1
+			first_valid += 1
+		}
+
+		if IsValidTobogganPassword(toCheck.Password, toCheck.Rule) {
+			second_valid += 1
 		}
 	}
 
-	println(valid)
+	println(first_valid)
+	println(second_valid)
 }
 
 // pragma mark - private
