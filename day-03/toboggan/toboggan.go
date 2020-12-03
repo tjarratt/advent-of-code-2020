@@ -64,7 +64,12 @@ func (g Grid) CountTrees(trajectory Trajectory) int {
 	total := 0
 
 	for i := 0; i < len(g.Rows); i += 1 {
-		node := g.Fetch(trajectory.multiply(i))
+		vec := trajectory.multiply(i)
+		if vec.Down >= len(g.Rows) {
+			break
+		}
+
+		node := g.Fetch(vec)
 		if node == Tree {
 			total += 1
 		}
