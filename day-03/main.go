@@ -13,6 +13,8 @@ func main() {
 	}
 
 	grid := NewGrid(fixture)
+
+	// pragma mark - part 1
 	println(grid.CountTrees(Trajectory{Right: 3, Down: 1}))
 
 	// pragma mark - part 2
