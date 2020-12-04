@@ -13,6 +13,9 @@ func main() {
 	}
 
 	validator := PassportValidator(file)
+	println(len(validator.Valid()))
 
+	file, _ = os.Open("input.txt")
+	validator = StrictPassportValidator(file)
 	println(len(validator.Valid()))
 }

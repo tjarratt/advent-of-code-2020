@@ -37,6 +37,22 @@ func Test_is_valid(t *testing.T) {
 	g.Expect(validator.Invalid()[0].Height).To(Equal(""))
 }
 
+func Test_part_two_valid(t *testing.T) {
+	g := gomega.NewGomegaWithT(t)
+	validator := StrictPassportValidator(fixtureNamed("part-2-valid.txt"))
+
+	g.Expect(validator.Valid()).To(HaveLen(4))
+	g.Expect(validator.Invalid()).To(HaveLen(0))
+}
+
+func Test_part_two_invalid(t *testing.T) {
+	g := gomega.NewGomegaWithT(t)
+	validator := StrictPassportValidator(fixtureNamed("part-2-invalid.txt"))
+
+	g.Expect(validator.Valid()).To(HaveLen(0))
+	g.Expect(validator.Invalid()).To(HaveLen(4))
+}
+
 func fixtureNamed(fileName string) io.Reader {
 	file, err := os.Open(fmt.Sprintf("fixtures/%s", fileName))
 	if err != nil {
