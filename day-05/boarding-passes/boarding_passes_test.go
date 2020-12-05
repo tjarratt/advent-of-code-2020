@@ -15,14 +15,22 @@ var _ = Describe("BoardingPasses", func() {
 	}
 
 	It("can determine the correct row and column", func() {
-		Expect(BoardingPass(passes[0]).Location()).To(Equal(Seat{Row: 70, Column: 7}))
-		Expect(BoardingPass(passes[1]).Location()).To(Equal(Seat{Row: 14, Column: 7}))
-		Expect(BoardingPass(passes[2]).Location()).To(Equal(Seat{Row: 102, Column: 4}))
+		Expect(NewBoardingPass(passes[0]).Location()).To(Equal(Seat{Row: 70, Column: 7}))
+		Expect(NewBoardingPass(passes[1]).Location()).To(Equal(Seat{Row: 14, Column: 7}))
+		Expect(NewBoardingPass(passes[2]).Location()).To(Equal(Seat{Row: 102, Column: 4}))
 	})
 
 	It("can determine the seat id", func() {
-		Expect(BoardingPass(passes[0]).SeatId()).To(Equal(567))
-		Expect(BoardingPass(passes[1]).SeatId()).To(Equal(119))
-		Expect(BoardingPass(passes[2]).SeatId()).To(Equal(820))
+		Expect(NewBoardingPass(passes[0]).SeatId()).To(Equal(567))
+		Expect(NewBoardingPass(passes[1]).SeatId()).To(Equal(119))
+		Expect(NewBoardingPass(passes[2]).SeatId()).To(Equal(820))
+	})
+
+	It("Knows when it is empty", func() {
+		var taken = NewBoardingPass(passes[0])
+		var empty BoardingPass
+
+		Expect(taken.IsEmpty()).To(BeFalse())
+		Expect(empty.IsEmpty()).To(BeTrue())
 	})
 })

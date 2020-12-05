@@ -11,25 +11,37 @@ type Seat struct {
 	Column int
 }
 
-type boardingPass struct {
+type BoardingPass struct {
 	raw string
 }
 
-func BoardingPass(input string) boardingPass {
-	return boardingPass{raw: input}
+func NewBoardingPass(input string) BoardingPass {
+	return BoardingPass{raw: input}
 }
 
-func (pass boardingPass) Location() Seat {
+func (pass BoardingPass) Location() Seat {
 	return Seat{
 		Row:    parseRow(pass.raw[0:7]),
 		Column: parseColumn(pass.raw[7:10]),
 	}
 }
 
-func (pass boardingPass) SeatId() int {
+func (pass BoardingPass) SeatId() int {
 	loc := pass.Location()
 
 	return loc.Row*8 + loc.Column
+}
+
+func (pass BoardingPass) IsEmpty() bool {
+	return pass.raw == ""
+}
+
+func (pass BoardingPass) String() string {
+	if pass.IsEmpty() {
+		return "."
+	} else {
+		return "x"
+	}
 }
 
 // pragma mark - private
