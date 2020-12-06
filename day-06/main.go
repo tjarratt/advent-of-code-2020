@@ -8,6 +8,7 @@ import (
 
 func main() {
 	println(CustomsCounter(fixtureNamed("input.txt")).Sum())
+	println(IntersectionCustomsCounter(fixtureNamed("input.txt")).Sum())
 }
 
 func fixtureNamed(name string) string {

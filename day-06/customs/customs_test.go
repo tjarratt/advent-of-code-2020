@@ -16,6 +16,12 @@ var _ = Describe("Customs", func() {
 		Expect(counter.Sum()).To(Equal(11))
 	})
 
+	It("sums the shared responses per group", func() {
+		counter := IntersectionCustomsCounter(fixtureNamed("1.txt"))
+
+		Expect(counter.Sum()).To(Equal(6))
+	})
+
 	It("counts the number of groups", func() {
 		counter := CustomsCounter(fixtureNamed("1.txt"))
 
