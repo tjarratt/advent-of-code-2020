@@ -21,6 +21,14 @@ var _ = Describe("Bag Sorting", func() {
 			"dark orange", "light red",
 		))
 	})
+
+	It("determines how many bags to stuff inside another", func() {
+		sorter := NewBagSorter(fixtureNamed("2.txt"))
+
+		total := sorter.BagsContainedBy("shiny gold")
+
+		Expect(total).To(Equal(126))
+	})
 })
 
 func fixtureNamed(name string) string {

@@ -14,4 +14,5 @@ func main() {
 
 	sorter := luggage.NewBagSorter(string(input))
 	println(len(sorter.BagsWhichCouldContain("shiny gold")))
+	println(sorter.BagsContainedBy("shiny gold"))
 }

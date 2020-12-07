@@ -16,8 +16,9 @@ type Graph struct {
 }
 
 type Node struct {
-	name    string
-	parents []capture
+	name     string
+	parents  []capture
+	children []capture
 }
 
 type capture struct {
@@ -60,6 +61,13 @@ func (sorter bagSorter) BagsWhichCouldContain(name string) []string {
 	return names
 }
 
+func (sorter bagSorter) BagsContainedBy(name string) int {
+	graph := parse(sorter.raw)
+	node := graph.FindNode(name)
+
+	return walkChildren(node, 1)
+}
+
 // pragma mark - graph
 func (graph Graph) FindNode(node_name string) *Node {
 	return graph.data[node_name]
@@ -71,25 +79,34 @@ func (graph Graph) AddTerminal(name string) {
 		return
 	}
 
-	graph.data[name] = &Node{name: name, parents: []capture{}}
+	graph.data[name] = &Node{
+		name:     name,
+		parents:  []capture{},
+		children: []capture{},
+	}
 }
 
 func (graph Graph) Add(parent, child string, quantity int) {
 	parent_node := graph.data[parent]
 	if parent_node == nil {
-		parent_node = &Node{name: parent, parents: []capture{}}
+		parent_node = &Node{name: parent, parents: []capture{}, children: []capture{}}
 		graph.data[parent] = parent_node
 	}
 
 	child_node := graph.data[child]
 	if child_node == nil {
-		child_node = &Node{name: child, parents: []capture{}}
+		child_node = &Node{name: child, parents: []capture{}, children: []capture{}}
 		graph.data[child] = child_node
 	}
 
 	child_node.parents = append(child_node.parents, capture{
 		quantity: quantity,
 		node:     parent_node,
+	})
+
+	parent_node.children = append(parent_node.children, capture{
+		quantity: quantity,
+		node:     child_node,
 	})
 }
 
@@ -114,6 +131,17 @@ func walk(node *Node, acc map[string]bool) {
 
 		walk(p, acc)
 	}
+}
+
+func walkChildren(node *Node, multiplier int) int {
+	total := 0
+
+	for _, child := range node.children {
+		total += child.quantity * multiplier
+		total += walkChildren(child.node, child.quantity*multiplier)
+	}
+
+	return total
 }
 
 var line_regexp = regexp.MustCompile("^([a-z ]+) bags contain (.*).$")
