@@ -17,6 +17,14 @@ var _ = Describe("Handheld Computers", func() {
 
 		Expect(handheld.Accumulator()).To(Equal(5))
 	})
+
+	It("identifies which instruction to change, and reports its accumulator", func() {
+		terminator := NewTerminator(fixtureNamed("1.txt"))
+
+		terminator.Run()
+
+		Expect(terminator.Accumulator()).To(Equal(8))
+	})
 })
 
 func fixtureNamed(file string) string {

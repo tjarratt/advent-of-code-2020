@@ -7,10 +7,15 @@ import (
 )
 
 func main() {
-	handheld := handheld.NewHandheld(input())
-	handheld.Run()
+	h := handheld.NewHandheld(input())
+	h.Run()
 
-	println(handheld.Accumulator())
+	println(h.Accumulator())
+
+	terminator := handheld.NewTerminator(input())
+	terminator.Run()
+
+	println(terminator.Accumulator())
 }
 
 func input() string {
