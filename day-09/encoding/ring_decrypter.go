@@ -36,6 +36,34 @@ func (r ringDecrypter) FirstInvalidNumber() int {
 	return -1
 }
 
+func (r ringDecrypter) EncryptionWeaknessFor(target int) int {
+	for i := 0; i < len(r.input); i++ {
+		sum := r.input[i]
+		min := r.input[i]
+		max := r.input[i]
+
+		for j := i + 1; j < len(r.input); j++ {
+			sum += r.input[j]
+			if sum > target {
+				break
+			}
+
+			if r.input[j] > max {
+				max = r.input[j]
+			}
+
+			if r.input[j] < min {
+				min = r.input[j]
+			}
+
+			if sum == target {
+				return min + max
+			}
+		}
+	}
+	return -1
+}
+
 func parse(input string) []int {
 	results := []int{}
 

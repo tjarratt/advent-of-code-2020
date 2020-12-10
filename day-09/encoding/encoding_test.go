@@ -15,6 +15,12 @@ var _ = Describe("Encoding Errors with XMAS", func() {
 
 		Expect(solver.FirstInvalidNumber()).To(Equal(127))
 	})
+
+	It("breaks the decryption by finding a range of numbers that sums to the invalid input", func() {
+		solver := RingDecrypter(fixture("1.txt"), 5)
+
+		Expect(solver.EncryptionWeaknessFor(127)).To(Equal(62))
+	})
 })
 
 func fixture(name string) string {

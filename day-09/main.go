@@ -10,6 +10,7 @@ func main() {
 	solver := encoding.RingDecrypter(input(), 25)
 
 	println(solver.FirstInvalidNumber())
+	println(solver.EncryptionWeaknessFor(85848519))
 }
 
 func input() string {
