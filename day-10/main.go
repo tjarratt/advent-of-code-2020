@@ -10,6 +10,7 @@ func main() {
 	solver := jolted.ChainedJoltageAdapters(input())
 
 	println(solver.DifferencesOfJolts(1) * solver.DifferencesOfJolts(3))
+	println(solver.CountValidCombinations())
 }
 
 func input() string {
