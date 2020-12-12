@@ -3,11 +3,16 @@ package game_of_chairs
 import "strings"
 
 func NewSimulator(raw string) simulator {
-	return simulator{parse(raw)}
+	return simulator{parse(raw), performRound}
+}
+
+func NewSimulatorPartTwo(raw string) simulator {
+	return simulator{parse(raw), performRoundPartTwo}
 }
 
 type simulator struct {
-	grid [][]place
+	grid           [][]place
+	roundPerformer func([][]place) int
 }
 
 type place int
@@ -22,8 +27,7 @@ const (
 func (sim simulator) OccupiedOnceStable() int {
 	displacements := -1
 	for displacements != 0 {
-		displacements = sim.performRound()
-
+		displacements = sim.roundPerformer(sim.grid)
 	}
 
 	seats_occupied := 0
@@ -38,19 +42,16 @@ func (sim simulator) OccupiedOnceStable() int {
 	return seats_occupied
 }
 
-func (sim simulator) performRound() int {
+func performRound(grid [][]place) int {
 	changes := []seatChange{}
 
-	for y, row := range sim.grid {
+	for y, row := range grid {
 		for x, place := range row {
-			if place == void {
-				continue
-			}
-			if place == floor {
+			if place == void || place == floor {
 				continue
 			}
 
-			neighbors := countNeighbors(sim.grid, x, y)
+			neighbors := countNeighbors(grid, x, y)
 
 			if place == seat && neighbors == 0 {
 				changes = append(changes, seatChange{x, y, occupied})
@@ -61,7 +62,32 @@ func (sim simulator) performRound() int {
 	}
 
 	for _, change := range changes {
-		sim.grid[change.y][change.x] = change.state
+		grid[change.y][change.x] = change.state
+	}
+
+	return len(changes)
+}
+func performRoundPartTwo(grid [][]place) int {
+	changes := []seatChange{}
+
+	for y, row := range grid {
+		for x, place := range row {
+			if place == void || place == floor {
+				continue
+			}
+
+			neighbors := countNeighborsPartTwo(grid, x, y)
+
+			if place == seat && neighbors == 0 {
+				changes = append(changes, seatChange{x, y, occupied})
+			} else if place == occupied && neighbors >= 5 {
+				changes = append(changes, seatChange{x, y, seat})
+			}
+		}
+	}
+
+	for _, change := range changes {
+		grid[change.y][change.x] = change.state
 	}
 
 	return len(changes)
@@ -155,6 +181,86 @@ func countNeighbors(grid [][]place, x, y int) int {
 	}
 	if grid[y+1][x-1] == occupied {
 		neighbors++
+	}
+
+	return neighbors
+}
+
+func countNeighborsPartTwo(grid [][]place, x, y int) int {
+	neighbors := 0
+
+	for i := 1; x-i > 0; i++ {
+		if grid[y][x-i] == seat {
+			break
+		}
+		if grid[y][x-i] == occupied {
+			neighbors++
+			break
+		}
+	}
+	for i := 1; x+i < len(grid[y])-1; i++ {
+		if grid[y][x+i] == seat {
+			break
+		}
+		if grid[y][x+i] == occupied {
+			neighbors++
+			break
+		}
+	}
+	for i := 1; y-i > 0; i++ {
+		if grid[y-i][x] == seat {
+			break
+		}
+
+		if grid[y-i][x] == occupied {
+			neighbors++
+			break
+		}
+	}
+	for i := 1; y+i < len(grid)-1; i++ {
+		if grid[y+i][x] == seat {
+			break
+		}
+		if grid[y+i][x] == occupied {
+			neighbors++
+			break
+		}
+	}
+	for i := 1; y-i > 0 && x+i < len(grid[y])-1; i++ {
+		if grid[y-i][x+i] == seat {
+			break
+		}
+		if grid[y-i][x+i] == occupied {
+			neighbors++
+			break
+		}
+	}
+	for i := 1; y-i > 0 && x-i > 0; i++ {
+		if grid[y-i][x-i] == seat {
+			break
+		}
+		if grid[y-i][x-i] == occupied {
+			neighbors++
+			break
+		}
+	}
+	for i := 1; y+i < len(grid)-1 && x+i < len(grid[y])-1; i++ {
+		if grid[y+i][x+i] == seat {
+			break
+		}
+		if grid[y+i][x+i] == occupied {
+			neighbors++
+			break
+		}
+	}
+	for i := 1; y+i < len(grid)-1 && x-i > 0; i++ {
+		if grid[y+i][x-i] == seat {
+			break
+		}
+		if grid[y+i][x-i] == occupied {
+			neighbors++
+			break
+		}
 	}
 
 	return neighbors

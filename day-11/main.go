@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	solver := NewSimulator(input())
-	println(solver.OccupiedOnceStable())
+	println(NewSimulator(input()).OccupiedOnceStable())
+	println(NewSimulatorPartTwo(input()).OccupiedOnceStable())
 }
 
 func input() string {

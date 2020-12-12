@@ -15,6 +15,12 @@ var _ = Describe("Game of Chairs Simulator", func() {
 
 		Expect(simulator.OccupiedOnceStable()).To(Equal(37))
 	})
+
+	It("handles slightly more picky seat-choosers", func() {
+		simulator := NewSimulatorPartTwo(fixtureNamed("1.txt"))
+
+		Expect(simulator.OccupiedOnceStable()).To(Equal(26))
+	})
 })
 
 func fixtureNamed(file string) string {
