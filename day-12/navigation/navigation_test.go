@@ -15,6 +15,12 @@ var _ = Describe("Navigating a boat", func() {
 
 		Expect(solver.ManhattanDistance()).To(Equal(25))
 	})
+
+	It("calculates the distance given a waypoint", func() {
+		solver := WaypointNavigationAssistant(fixtureNamed("1.txt"))
+
+		Expect(solver.ManhattanDistance()).To(Equal(286))
+	})
 })
 
 func fixtureNamed(file string) string {

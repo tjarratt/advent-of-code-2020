@@ -7,9 +7,12 @@ import (
 )
 
 func main() {
-	navigator := NavigationAssistant(input())
+	input := input()
+	navigator := NavigationAssistant(input)
+	waypointNavigator := WaypointNavigationAssistant(input)
 
 	println(navigator.ManhattanDistance())
+	println(waypointNavigator.ManhattanDistance())
 }
 
 func input() string {
