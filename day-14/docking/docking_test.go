@@ -15,6 +15,12 @@ var _ = Describe("Docking protocol", func() {
 
 		Expect(solver.Solution()).To(Equal(165))
 	})
+
+	It("sums the values in memory, using the v2 decoder chip protocol", func() {
+		solver := NewDockingProgram(fixtureNamed("2.txt"))
+
+		Expect(solver.V2Solution()).To(Equal(208))
+	})
 })
 
 func fixtureNamed(file string) string {

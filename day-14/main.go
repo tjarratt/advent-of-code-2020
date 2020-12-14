@@ -10,6 +10,7 @@ func main() {
 	solver := docking.NewDockingProgram(input())
 
 	println(solver.Solution())
+	println(solver.V2Solution())
 }
 
 func input() string {

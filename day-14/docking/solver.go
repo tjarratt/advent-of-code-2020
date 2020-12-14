@@ -94,6 +94,7 @@ const (
 	x blit = iota
 	on
 	off
+	floating
 )
 
 func initMask() []blit {
