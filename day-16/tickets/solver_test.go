@@ -15,6 +15,14 @@ var _ = Describe("TicketScanner", func() {
 
 		Expect(subject.ErrorRate()).To(Equal(71))
 	})
+
+	It("is able to determine which field is which", func() {
+		subject := NewFieldScanner(fixtureNamed("2.txt"))
+
+		Expect(subject.MyTicket()["row"]).To(Equal(11))
+		Expect(subject.MyTicket()["class"]).To(Equal(12))
+		Expect(subject.MyTicket()["seat"]).To(Equal(13))
+	})
 })
 
 func fixtureNamed(file string) string {
