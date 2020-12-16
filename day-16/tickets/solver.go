@@ -11,9 +11,14 @@ func NewFieldScanner(input string) solver {
 }
 
 type solver struct {
-	rules map[string]fieldValidity
+	rules []rule
 
 	nearby_tickets [][]int
+}
+
+type rule struct {
+	name     string
+	validity fieldValidity
 }
 
 type fieldValidity struct {
@@ -21,13 +26,13 @@ type fieldValidity struct {
 	second validRange
 }
 
-func (f fieldValidity) Valid(field int) bool {
+func (r rule) Valid(field int) bool {
 	valid := false
 
-	if field >= f.first.min && field <= f.first.max {
+	if field >= r.validity.first.min && field <= r.validity.first.max {
 		valid = valid || true
 	}
-	if field >= f.second.min && field <= f.second.max {
+	if field >= r.validity.second.min && field <= r.validity.second.max {
 		valid = valid || true
 	}
 
@@ -45,8 +50,8 @@ func (s solver) ErrorRate() int {
 	for _, ticket := range s.nearby_tickets {
 		for _, field := range ticket {
 			any_valid := false
-			for _, ranges := range s.rules {
-				if ranges.Valid(field) {
+			for _, rule := range s.rules {
+				if rule.Valid(field) {
 					any_valid = true
 					break
 				}
@@ -62,7 +67,7 @@ func (s solver) ErrorRate() int {
 }
 
 func parse(input string) solver {
-	rules := map[string]fieldValidity{}
+	rules := []rule{}
 	nearby_tickets := [][]int{}
 
 	sections := strings.Split(input, "\n\n")
@@ -72,7 +77,7 @@ func parse(input string) solver {
 		}
 
 		pieces := strings.Split(line, ":")
-		rules[pieces[0]] = parseValidity(pieces[1])
+		rules = append(rules, rule{name: pieces[0], validity: parseValidity(pieces[1])})
 	}
 
 	for _, line := range strings.Split(sections[2], "\n")[1:] {
