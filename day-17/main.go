@@ -3,11 +3,26 @@ package main
 import (
 	"io/ioutil"
 
-	"github.com/tjarratt/advent-of-code-2020/day-17/conway_cubes"
+	. "github.com/tjarratt/advent-of-code-2020/day-17/conway_cubes"
 )
 
 func main() {
-	solver := conway_cubes.NewCubeSimulationSolver(input())
+	part1()
+	part2()
+}
+
+func part1() {
+	solver := NewCubeSimulationSolver(input())
+
+	for i := 0; i < 6; i++ {
+		solver.Run()
+	}
+
+	println(solver.ActiveCubes())
+}
+
+func part2() {
+	solver := NewHyperCubeSimulationSolver(input())
 
 	for i := 0; i < 6; i++ {
 		solver.Run()
