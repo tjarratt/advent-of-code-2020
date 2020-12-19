@@ -48,6 +48,7 @@ func read_value_from(blackbox interface{}) int {
 	panic(fmt.Sprintf("unexpected type: %T", blackbox))
 }
 
+// pragma mark -- debug
 func debug(expr *expression) string {
 	str := fmt.Sprintf("%#v ", expr.left)
 	str += expr.operand.String() + " "
@@ -63,14 +64,6 @@ func debug(expr *expression) string {
 	return str
 }
 
-type operator int
-
-const (
-	undef operator = iota
-	add
-	multiply
-)
-
 func (o operator) String() string {
 	switch o {
 	case add:
@@ -82,6 +75,8 @@ func (o operator) String() string {
 	}
 }
 
+// pragma mark - parsing
+//
 var integer_expression = regexp.MustCompile("[0-9]")
 
 func parse(pieces []string) *expression {
@@ -155,7 +150,6 @@ func parse_parens(pieces []string, start int) (*group, int) {
 		index += 1
 	}
 
-	// evalate all of the bits between start and index
 	return &group{root: parse(pieces[start+1 : index-1])}, index
 }
 
@@ -172,6 +166,7 @@ func operand_at_index(pieces []string, index int) operator {
 	panic(fmt.Sprintf("unknown operand '%s' at index %d", raw, index))
 }
 
+// pragma mark - type declarations
 type expression struct {
 	left    interface{}
 	operand operator
@@ -181,3 +176,11 @@ type expression struct {
 type group struct {
 	root *expression
 }
+
+type operator int
+
+const (
+	undef operator = iota
+	add
+	multiply
+)
