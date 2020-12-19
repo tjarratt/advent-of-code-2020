@@ -8,17 +8,20 @@ import (
 )
 
 func main() {
-	result := 0
+	part1 := 0
+	part2 := 0
 
 	for _, line := range strings.Split(input(), "\n") {
 		if len(line) == 0 {
 			continue
 		}
 
-		result += calculator.Solve(line)
+		part1 += calculator.Solve(line)
+		part2 += calculator.SolveAdvanced(line)
 	}
 
-	println(result)
+	println(part1)
+	println(part2)
 }
 
 func input() string {

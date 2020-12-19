@@ -14,7 +14,7 @@ func Solve(input string) int {
 }
 
 func SolveAdvanced(input string) int {
-	return calculate_advanced(parse(strings.Split(input, "")))
+	return calculate_advanced(parse_advanced(strings.Split(input, "")))
 }
 
 func calculate(expr *expression) int {
@@ -38,6 +38,49 @@ func calculate(expr *expression) int {
 	thunk.left = result
 
 	return calculate(thunk)
+}
+
+func calculate_advanced(input []interface{}) int {
+	step_1 := make([]interface{}, 0)
+
+	// recurse and evaluate any nested groups
+	for _, item := range input {
+		if as_slice, ok := item.([]interface{}); ok {
+			step_1 = append(step_1, calculate_advanced(as_slice))
+		} else {
+			step_1 = append(step_1, item)
+		}
+	}
+
+	step_2 := make([]interface{}, 0)
+	for index := 0; index < len(step_1); {
+		item := step_1[index]
+		index += 1
+
+		if item == add_str {
+			// pop off last item
+			var previous interface{}
+			previous, step_2 := step_2[len(step_2)-1], step_2[:len(step_2)-1]
+
+			// read next
+			next := step_1[index]
+			index += 1
+
+			// store result
+			step_2 = append(step_2, previous.(int)+next.(int))
+		} else if item == multiply_str {
+			continue
+		} else {
+			step_2 = append(step_2, item)
+		}
+	}
+
+	result := 1
+	for _, item := range step_2 {
+		result = result * item.(int)
+	}
+
+	return result
 }
 
 func read_value_from(blackbox interface{}) int {
@@ -84,6 +127,52 @@ func (o operator) String() string {
 // pragma mark - parsing
 //
 var integer_expression = regexp.MustCompile("[0-9]")
+
+func parse_advanced(pieces []string) []interface{} {
+	result := []interface{}{}
+
+	for index := 0; index < len(pieces); {
+		piece := pieces[index]
+		index++
+
+		if piece == " " || len(piece) == 0 {
+			continue
+		}
+		if integer_expression.MatchString(piece) {
+			as_int, _ := strconv.Atoi(piece)
+			result = append(result, as_int)
+		} else if piece == "+" {
+			result = append(result, add_str)
+		} else if piece == "*" {
+			result = append(result, multiply_str)
+		} else if piece == "(" {
+			closing_paren_index := find_balanced_parens(pieces, index)
+			sub_slice := pieces[index : closing_paren_index-1]
+			index = closing_paren_index + 1
+			result = append(result, parse_advanced(sub_slice))
+		} else {
+			panic(fmt.Sprintf("Unexpected token: %s", piece))
+		}
+	}
+
+	return result
+}
+
+func find_balanced_parens(pieces []string, index int) int {
+	parens_count := 1
+
+	for parens_count > 0 {
+		if pieces[index] == "(" {
+			parens_count += 1
+		} else if pieces[index] == ")" {
+			parens_count -= 1
+		}
+
+		index += 1
+	}
+
+	return index
+}
 
 func parse(pieces []string) *expression {
 	tmp := &expression{}
@@ -190,3 +279,6 @@ const (
 	add
 	multiply
 )
+
+var add_str string = "+"
+var multiply_str string = "*"
