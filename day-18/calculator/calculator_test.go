@@ -23,3 +23,10 @@ var _ = Describe("Bizarro Math Calculator", func() {
 		Expect(calculator.Solve("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2")).To(Equal(13632))
 	})
 })
+
+var _ = Describe("Advanced Bizarro Math Calculator", func() {
+	FIt("still handles the same case where precedence rules do not change the order", func() {
+		Expect(calculator.SolveAdvanced("1 + (2 * 3) + (4 * (5 + 6))")).To(Equal(51))
+		Expect(calculator.SolveAdvanced("2 * 3 + (4 * 5)")).To(Equal(46))
+	})
+})

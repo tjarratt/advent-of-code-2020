@@ -13,6 +13,10 @@ func Solve(input string) int {
 	return calculate(expression)
 }
 
+func SolveAdvanced(input string) int {
+	return calculate_advanced(parse(strings.Split(input, "")))
+}
+
 func calculate(expr *expression) int {
 	leftValue := read_value_from(expr.left)
 	if expr.operand == undef {
@@ -56,6 +60,8 @@ func debug(expr *expression) string {
 	for next := expr.right.(*expression); next.left != nil; next = next.right.(*expression) {
 		if as_expr, ok := next.left.(*expression); ok {
 			str += fmt.Sprintf("%s %s", debug(as_expr), next.operand.String())
+		} else if as_group, ok := next.left.(*group); ok {
+			str += fmt.Sprintf("( %s)", debug(as_group.root))
 		} else {
 			str += fmt.Sprintf("%#v %s ", next.left, next.operand.String())
 		}
@@ -71,7 +77,7 @@ func (o operator) String() string {
 	case multiply:
 		return "*"
 	default:
-		return fmt.Sprintf("%d", o)
+		return ""
 	}
 }
 
