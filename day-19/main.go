@@ -7,9 +7,12 @@ import (
 )
 
 func main() {
-	solver := messages.NewSolver(input())
+	input := input()
+	solver := messages.NewSolver(input)
+	advanced_solver := messages.NewAdvancedSolver(input)
 
 	println(solver.UncorruptedMessages())
+	println(advanced_solver.UncorruptedMessages())
 }
 
 func input() string {
