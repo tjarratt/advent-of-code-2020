@@ -64,6 +64,7 @@ func (s solver) Image(width, height int) string {
 	solvedPieces[topLeftCorner.id] = topLeftCorner
 	delete(remainingPieces, topLeftCorner.id)
 
+	// solve top border
 	prev := topLeftCorner
 	for i := 0; i < 11; i++ {
 		for _, piece := range remainingPieces {
@@ -86,12 +87,7 @@ func (s solver) Image(width, height int) string {
 		}
 	}
 
-	// STRATEGY :: build the border
-	// look for a piece where an edge equals one of the edges we have
-	// place it such that its edge with frequency 1 is OUTSIDE
-	//
-	// TACTICALLY build the left border
-
+	// solve the left border
 	prev = topLeftCorner
 	for i := 1; i < height; i++ {
 		println("looking for a piece to connect to", prev.id, "on edge", prev.orientations[0].edges[1].String())
@@ -108,6 +104,31 @@ func (s solver) Image(width, height int) string {
 
 			if next.id != 0 {
 				solution[i] = append(solution[i], next)
+				solvedPieces[next.id] = next
+				delete(remainingPieces, next.id)
+				prev = next
+				break
+			}
+		}
+	}
+
+	// solve the bottom border
+	prev = solution[height-1][0]
+	for i := 1; i < height; i++ {
+		println("looking for a piece to connect to", prev.id, "on edge", prev.orientations[0].edges[3].String())
+		println(fmt.Sprintf("it should look like '%s'", prev.orientations[0].edges[3].data))
+		for _, piece := range remainingPieces {
+			var next puzzlePiece
+
+			for index, orientation := range piece.orientations {
+				if orientation.edges[2] == prev.orientations[0].edges[3] && orientation.edges[1].frequency == 1 {
+					next = piece.choose(index)
+					break
+				}
+			}
+
+			if next.id != 0 {
+				solution[height-1] = append(solution[height-1], next)
 				solvedPieces[next.id] = next
 				delete(remainingPieces, next.id)
 				prev = next
