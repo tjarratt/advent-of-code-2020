@@ -129,87 +129,52 @@ type puzzlePiece struct {
 }
 
 func (p puzzlePiece) choose(index int) puzzlePiece {
-	if index == 0 {
-		return p
-	} else if index == 1 {
+	var data []string
+
+	switch index {
+	case 0:
+		data = p.data
+	case 1:
 		// rotate left
-		return puzzlePiece{
-			id:           p.id,
-			data:         rotateLeft(p.data),
-			orientations: []orientation{p.orientations[1]},
-		}
-	} else if index == 2 {
+		data = rotateLeft(p.data)
+	case 2:
 		// rotate right
-		return puzzlePiece{
-			id:           p.id,
-			data:         rotateRight(p.data),
-			orientations: []orientation{p.orientations[2]},
-		}
-	} else if index == 3 {
+		data = rotateRight(p.data)
+	case 3:
 		// rotate 180
-		return puzzlePiece{
-			id:           p.id,
-			data:         rotate180(p.data),
-			orientations: []orientation{p.orientations[3]},
-		}
-	} else if index == 4 {
+		data = rotate180(p.data)
+	case 4:
 		// vertical flip about horizontal axis
-		return puzzlePiece{
-			id:           p.id,
-			data:         flipOverHorizontalAxis(p.data),
-			orientations: []orientation{p.orientations[4]},
-		}
-	} else if index == 5 {
+		data = flipOverHorizontalAxis(p.data)
+	case 5:
 		// horizontal flip about vertical axis
-		return puzzlePiece{
-			id:           p.id,
-			data:         flipOverVerticalAxis(p.data),
-			orientations: []orientation{p.orientations[5]},
-		}
-	} else if index == 6 {
+		data = flipOverVerticalAxis(p.data)
+	case 6:
 		// horizontal flip, then rotate left (anti-clockwise)
-		return puzzlePiece{
-			id:           p.id,
-			data:         rotateLeft(flipOverVerticalAxis(p.data)),
-			orientations: []orientation{p.orientations[6]},
-		}
-	} else if index == 7 {
+		data = rotateLeft(flipOverVerticalAxis(p.data))
+	case 7:
 		// horizontal flip, then rotate right
-		return puzzlePiece{
-			id:           p.id,
-			data:         rotateRight(flipOverVerticalAxis(p.data)),
-			orientations: []orientation{p.orientations[7]},
-		}
-	} else if index == 8 {
+		data = rotateRight(flipOverVerticalAxis(p.data))
+	case 8:
 		// horizontal flip, then rotate 180
-		return puzzlePiece{
-			id:           p.id,
-			data:         rotate180(flipOverVerticalAxis(p.data)),
-			orientations: []orientation{p.orientations[8]},
-		}
-	} else if index == 9 {
+		data = rotate180(flipOverVerticalAxis(p.data))
+	case 9:
 		// vertical flip, then rotate left
-		return puzzlePiece{
-			id:           p.id,
-			data:         rotateLeft(flipOverHorizontalAxis(p.data)),
-			orientations: []orientation{p.orientations[9]},
-		}
-	} else if index == 10 {
+		data = rotateLeft(flipOverHorizontalAxis(p.data))
+	case 10:
 		// vertical flip, then rotate right
-		return puzzlePiece{
-			id:           p.id,
-			data:         rotateRight(flipOverHorizontalAxis(p.data)),
-			orientations: []orientation{p.orientations[10]},
-		}
-	} else if index == 11 {
+		data = rotateRight(flipOverHorizontalAxis(p.data))
+	case 11:
 		// vertical flip, then rotate 180
-		return puzzlePiece{
-			id:           p.id,
-			data:         rotate180(flipOverHorizontalAxis(p.data)),
-			orientations: []orientation{p.orientations[10]},
-		}
-	} else {
+		data = rotate180(flipOverHorizontalAxis(p.data))
+	default:
 		panic(fmt.Sprintf("Unexpected orientation: %d", index))
+	}
+
+	return puzzlePiece{
+		id:           p.id,
+		data:         data,
+		orientations: []orientation{p.orientations[index]},
 	}
 }
 
