@@ -19,6 +19,12 @@ var _ = Describe("Tiled Image Puzzle Solving", func() {
 
 		Expect(solver.Corners()).To(ContainElements(1171, 2971, 3079, 1951))
 	})
+
+	It("is able to solve the image", func() {
+		solver := NewSolver(fixtureNamed("1.txt"))
+
+		Expect(solver.Image(3, 3)).To(Equal(fixtureNamed("1_expected.txt")))
+	})
 })
 
 func fixtureNamed(name string) string {

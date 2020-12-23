@@ -15,6 +15,9 @@ func main() {
 	}
 
 	println(product)
+
+	println("... and now for part 2")
+	println(solver.Image(12, 12))
 }
 
 func input() string {
