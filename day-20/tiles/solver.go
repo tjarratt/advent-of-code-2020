@@ -49,7 +49,7 @@ func (s solver) Image(width, height int) string {
 	// build up a list of tiles with edges and appearance count
 	remainingPieces := s.parsePieces()
 
-	solution := [][]puzzlePiece{{}}
+	solution := make([][]puzzlePiece, height)
 	solvedPieces := map[int]puzzlePiece{}
 
 	// pick a corner piece and place it first
@@ -64,24 +64,12 @@ func (s solver) Image(width, height int) string {
 	solvedPieces[topLeftCorner.id] = topLeftCorner
 	delete(remainingPieces, topLeftCorner.id)
 
-	// STRATEGY :: build the border
-	// look for a piece where an edge equals one of the edges we have
-	// place it such that its edge with frequency 1 is OUTSIDE
-	//
-	// TACTICALLY build the top row
-
 	prev := topLeftCorner
-	for i := 0; i < 12; i++ {
-		println("looking for a piece to connect to", prev.id, "on edge", prev.orientations[0].edges[3].String())
-		println(fmt.Sprintf("it should look like '%s'", prev.orientations[0].edges[3].data))
+	for i := 0; i < 11; i++ {
 		for _, piece := range remainingPieces {
 			var next puzzlePiece
 
 			for index, orientation := range piece.orientations {
-				if piece.id == 2339 && prev.id == 3539 {
-					println("considering piece 2339 w/ orientation", index, ":", orientation.edges[2].data)
-				}
-
 				if orientation.edges[2] == prev.orientations[0].edges[3] && orientation.edges[0].frequency == 1 {
 					next = piece.choose(index)
 					break
@@ -98,16 +86,42 @@ func (s solver) Image(width, height int) string {
 		}
 	}
 
+	// STRATEGY :: build the border
+	// look for a piece where an edge equals one of the edges we have
+	// place it such that its edge with frequency 1 is OUTSIDE
+	//
+	// TACTICALLY build the left border
+
+	prev = topLeftCorner
+	for i := 1; i < height; i++ {
+		println("looking for a piece to connect to", prev.id, "on edge", prev.orientations[0].edges[1].String())
+		println(fmt.Sprintf("it should look like '%s'", prev.orientations[0].edges[1].data))
+		for _, piece := range remainingPieces {
+			var next puzzlePiece
+
+			for index, orientation := range piece.orientations {
+				if orientation.edges[0] == prev.orientations[0].edges[1] && orientation.edges[2].frequency == 1 {
+					next = piece.choose(index)
+					break
+				}
+			}
+
+			if next.id != 0 {
+				solution[i] = append(solution[i], next)
+				solvedPieces[next.id] = next
+				delete(remainingPieces, next.id)
+				prev = next
+				break
+			}
+		}
+	}
+
 	println(fmt.Sprintf("the solution thus far ... (%d pieces solved) (%d remaining)", len(solvedPieces), len(remainingPieces)))
 	println()
 
 	// for each row of tiles
 	for y_tile := 0; y_tile < len(solution); y_tile++ {
 		// for each of the rows over in that image
-		for i := 0; i < width; i++ {
-			print("v        v")
-		}
-		println()
 		for y_row := 0; y_row < len(solution[y_tile][0].data); y_row++ {
 			// for each of the tiles in this slice
 			for _, tile := range solution[y_tile] {
