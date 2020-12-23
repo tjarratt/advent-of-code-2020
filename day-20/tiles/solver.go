@@ -54,13 +54,10 @@ func (s solver) Image(width, height int) string {
 
 	// pick a corner piece and place it first
 	for _, piece := range remainingPieces {
-		//		for index, orientation := range piece.orientations {
 		if piece.orientations[0].isTopLeftCorner() {
-			println("top left piece is", piece.id)
 			solution[0] = append(solution[0], piece)
 			break
 		}
-		//		}
 	}
 
 	topLeftCorner := solution[0][0]
@@ -74,13 +71,18 @@ func (s solver) Image(width, height int) string {
 	// TACTICALLY build the top row
 
 	prev := topLeftCorner
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 12; i++ {
 		println("looking for a piece to connect to", prev.id, "on edge", prev.orientations[0].edges[3].String())
+		println(fmt.Sprintf("it should look like '%s'", prev.orientations[0].edges[3].data))
 		for _, piece := range remainingPieces {
 			var next puzzlePiece
 
 			for index, orientation := range piece.orientations {
-				if orientation.edges[2] == prev.orientations[0].edges[3] {
+				if piece.id == 2339 && prev.id == 3539 {
+					println("considering piece 2339 w/ orientation", index, ":", orientation.edges[2].data)
+				}
+
+				if orientation.edges[2] == prev.orientations[0].edges[3] && orientation.edges[0].frequency == 1 {
 					next = piece.choose(index)
 					break
 				}
@@ -102,6 +104,10 @@ func (s solver) Image(width, height int) string {
 	// for each row of tiles
 	for y_tile := 0; y_tile < len(solution); y_tile++ {
 		// for each of the rows over in that image
+		for i := 0; i < width; i++ {
+			print("v        v")
+		}
+		println()
 		for y_row := 0; y_row < len(solution[y_tile][0].data); y_row++ {
 			// for each of the tiles in this slice
 			for _, tile := range solution[y_tile] {
@@ -124,11 +130,9 @@ type puzzlePiece struct {
 
 func (p puzzlePiece) choose(index int) puzzlePiece {
 	if index == 0 {
-		println("chose tile", p.id, "with identity transformation")
 		return p
 	} else if index == 1 {
 		// rotate left
-		println("chose tile", p.id, "with left rotation")
 		return puzzlePiece{
 			id:           p.id,
 			data:         rotateLeft(p.data),
@@ -136,7 +140,6 @@ func (p puzzlePiece) choose(index int) puzzlePiece {
 		}
 	} else if index == 2 {
 		// rotate right
-		println("chose tile", p.id, "with right rotation")
 		return puzzlePiece{
 			id:           p.id,
 			data:         rotateRight(p.data),
@@ -144,15 +147,110 @@ func (p puzzlePiece) choose(index int) puzzlePiece {
 		}
 	} else if index == 3 {
 		// rotate 180
-		println("chose tile", p.id, "with rotation by 180 degrees")
 		return puzzlePiece{
 			id:           p.id,
 			data:         rotate180(p.data),
 			orientations: []orientation{p.orientations[3]},
 		}
+	} else if index == 4 {
+		// vertical flip about horizontal axis
+		return puzzlePiece{
+			id:           p.id,
+			data:         flipOverHorizontalAxis(p.data),
+			orientations: []orientation{p.orientations[4]},
+		}
+	} else if index == 5 {
+		// horizontal flip about vertical axis
+		return puzzlePiece{
+			id:           p.id,
+			data:         flipOverVerticalAxis(p.data),
+			orientations: []orientation{p.orientations[5]},
+		}
+	} else if index == 6 {
+		// horizontal flip, then rotate left (anti-clockwise)
+		return puzzlePiece{
+			id:           p.id,
+			data:         rotateLeft(flipOverVerticalAxis(p.data)),
+			orientations: []orientation{p.orientations[6]},
+		}
+	} else if index == 7 {
+		// horizontal flip, then rotate right
+		return puzzlePiece{
+			id:           p.id,
+			data:         rotateRight(flipOverVerticalAxis(p.data)),
+			orientations: []orientation{p.orientations[7]},
+		}
+	} else if index == 8 {
+		// horizontal flip, then rotate 180
+		return puzzlePiece{
+			id:           p.id,
+			data:         rotate180(flipOverVerticalAxis(p.data)),
+			orientations: []orientation{p.orientations[8]},
+		}
+	} else if index == 9 {
+		// vertical flip, then rotate left
+		return puzzlePiece{
+			id:           p.id,
+			data:         rotateLeft(flipOverHorizontalAxis(p.data)),
+			orientations: []orientation{p.orientations[9]},
+		}
+	} else if index == 10 {
+		// vertical flip, then rotate right
+		return puzzlePiece{
+			id:           p.id,
+			data:         rotateRight(flipOverHorizontalAxis(p.data)),
+			orientations: []orientation{p.orientations[10]},
+		}
+	} else if index == 11 {
+		// vertical flip, then rotate 180
+		return puzzlePiece{
+			id:           p.id,
+			data:         rotate180(flipOverHorizontalAxis(p.data)),
+			orientations: []orientation{p.orientations[10]},
+		}
 	} else {
 		panic(fmt.Sprintf("Unexpected orientation: %d", index))
 	}
+}
+
+func flipOverHorizontalAxis(data []string) []string {
+	grid := make([][]string, len(data))
+	for y, line := range data {
+		for _, str := range strings.Split(line, "") {
+			grid[y] = append(grid[y], str)
+		}
+	}
+
+	// only the y dimension gets flipped
+	result := make([]string, len(data))
+	for x := 0; x < len(grid[0]); x++ {
+		for y := 0; y < len(grid); y++ {
+			y_index := len(grid) - 1 - y
+			result[y] += grid[y_index][x]
+		}
+	}
+
+	return result
+}
+
+func flipOverVerticalAxis(data []string) []string {
+	grid := make([][]string, len(data))
+	for y, line := range data {
+		for _, str := range strings.Split(line, "") {
+			grid[y] = append(grid[y], str)
+		}
+	}
+
+	// only the x dimension gets flipped
+	result := make([]string, len(data))
+	for x := 0; x < len(grid[0]); x++ {
+		for y := 0; y < len(grid); y++ {
+			x_index := len(grid[0]) - 1 - x
+			result[y] += grid[y][x_index]
+		}
+	}
+
+	return result
 }
 
 func rotate180(data []string) []string {
@@ -185,24 +283,12 @@ func rotateLeft(data []string) []string {
 	}
 
 	rotated := make([]string, len(data))
-	for x := len(grid[0]) - 1; x >= 0; x-- {
+	for x := 0; x < len(grid[0]); x++ {
 		for y := 0; y < len(grid); y++ {
-			rotated[y] += grid[y][x]
+			x_index := len(grid[0]) - 1 - x
+			rotated[x] += grid[y][x_index]
 		}
 	}
-
-	println("rotating data left ??")
-	println("original:")
-	for _, line := range data {
-		println(line)
-	}
-
-	println()
-	println("rotated:")
-	for _, line := range rotated {
-		println(line)
-	}
-	println()
 
 	return rotated
 }
@@ -221,19 +307,6 @@ func rotateRight(data []string) []string {
 			rotated[len(grid)-1-y] = grid[y][x]
 		}
 	}
-
-	println("rotating data  ??")
-	println("original:")
-	for _, line := range data {
-		println(line)
-	}
-
-	println()
-	println("rotated:")
-	for _, line := range rotated {
-		println(line)
-	}
-	println()
 
 	return rotated
 }
@@ -312,6 +385,62 @@ func (s solver) orientationsFor(data []string) []orientation {
 			edges: []edge{
 				s.flip(s.bottomSlice(data)), s.flip(s.topSlice(data)),
 				s.flip(s.rightSlice(data)), s.flip(s.leftSlice(data)),
+			},
+		},
+		// 4. vertical flip over horizontal axis
+		{
+			edges: []edge{
+				s.bottomSlice(data), s.topSlice(data),
+				s.flip(s.leftSlice(data)), s.flip(s.rightSlice(data)),
+			},
+		},
+		// 5. horizontal flip over vertical axis
+		{
+			edges: []edge{
+				s.flip(s.topSlice(data)), s.flip(s.bottomSlice(data)),
+				s.rightSlice(data), s.leftSlice(data),
+			},
+		},
+		// 6. horizontal flip, then rotate left
+		{
+			edges: []edge{
+				s.leftSlice(data), s.rightSlice(data),
+				s.topSlice(data), s.bottomSlice(data),
+			},
+		},
+		// 7. horizontal flip, then rotate right
+		{
+			edges: []edge{
+				s.flip(s.rightSlice(data)), s.flip(s.leftSlice(data)),
+				s.flip(s.topSlice(data)), s.flip(s.bottomSlice(data)),
+			},
+		},
+		// 8. horizontal flip, then rotate 180
+		{
+			edges: []edge{
+				s.bottomSlice(data), s.topSlice(data),
+				s.flip(s.leftSlice(data)), s.flip(s.rightSlice(data)),
+			},
+		},
+		// 9. vertical flip, then rotate left
+		{
+			edges: []edge{
+				s.flip(s.rightSlice(data)), s.flip(s.leftSlice(data)),
+				s.flip(s.bottomSlice(data)), s.flip(s.topSlice(data)),
+			},
+		},
+		// 10. vertical flip, then rotate right
+		{
+			edges: []edge{
+				s.leftSlice(data), s.rightSlice(data),
+				s.topSlice(data), s.bottomSlice(data),
+			},
+		},
+		// 11. vertical flip, then rotate 180
+		{
+			edges: []edge{
+				s.flip(s.topSlice(data)), s.flip(s.bottomSlice(data)),
+				s.rightSlice(data), s.leftSlice(data),
 			},
 		},
 	}
