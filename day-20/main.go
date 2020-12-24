@@ -16,8 +16,10 @@ func main() {
 
 	println(product)
 
-	println("... and now for part 2")
-	println(solver.Image(12, 12))
+	image, result := solver.Image(12, 12)
+	println(image)
+	println()
+	println(result)
 }
 
 func input() string {

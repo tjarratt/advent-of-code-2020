@@ -44,7 +44,7 @@ func (s solver) Corners() []int {
 	return result
 }
 
-func (s solver) Image(width, height int) string {
+func (s solver) Image(width, height int) (string, int) {
 
 	// build up a list of tiles with edges and appearance count
 	remainingPieces := s.parsePieces()
@@ -61,8 +61,12 @@ func (s solver) Image(width, height int) string {
 	}
 
 	topLeftCorner := solution[0][0]
-	solvedPieces[topLeftCorner.id] = topLeftCorner
-	delete(remainingPieces, topLeftCorner.id)
+
+	tmp := func(p puzzlePiece) {
+		solvedPieces[p.id] = p
+		delete(remainingPieces, p.id)
+	}
+	tmp(topLeftCorner)
 
 	// solve top border
 	prev := topLeftCorner
@@ -79,8 +83,7 @@ func (s solver) Image(width, height int) string {
 
 			if next.id != 0 {
 				solution[0] = append(solution[0], next)
-				solvedPieces[next.id] = next
-				delete(remainingPieces, next.id)
+				tmp(next)
 				prev = next
 				break
 			}
@@ -90,8 +93,6 @@ func (s solver) Image(width, height int) string {
 	// solve the left border
 	prev = topLeftCorner
 	for i := 1; i < height; i++ {
-		println("looking for a piece to connect to", prev.id, "on edge", prev.orientations[0].edges[1].String())
-		println(fmt.Sprintf("it should look like '%s'", prev.orientations[0].edges[1].data))
 		for _, piece := range remainingPieces {
 			var next puzzlePiece
 
@@ -104,8 +105,7 @@ func (s solver) Image(width, height int) string {
 
 			if next.id != 0 {
 				solution[i] = append(solution[i], next)
-				solvedPieces[next.id] = next
-				delete(remainingPieces, next.id)
+				tmp(next)
 				prev = next
 				break
 			}
@@ -115,8 +115,6 @@ func (s solver) Image(width, height int) string {
 	// solve the bottom border
 	prev = solution[height-1][0]
 	for i := 1; i < height; i++ {
-		println("looking for a piece to connect to", prev.id, "on edge", prev.orientations[0].edges[3].String())
-		println(fmt.Sprintf("it should look like '%s'", prev.orientations[0].edges[3].data))
 		for _, piece := range remainingPieces {
 			var next puzzlePiece
 
@@ -129,32 +127,142 @@ func (s solver) Image(width, height int) string {
 
 			if next.id != 0 {
 				solution[height-1] = append(solution[height-1], next)
-				solvedPieces[next.id] = next
-				delete(remainingPieces, next.id)
+				tmp(next)
 				prev = next
 				break
 			}
 		}
 	}
 
-	println(fmt.Sprintf("the solution thus far ... (%d pieces solved) (%d remaining)", len(solvedPieces), len(remainingPieces)))
-	println()
+	// solve the remaining rows
+	for y := 1; y < height-1; y++ {
+		for x := 1; x < width; x++ {
+			left_neighbor := solution[y][x-1]
+			top_neighbor := solution[y-1][x]
+
+			top_edge := top_neighbor.orientations[0].edges[1]
+			left_edge := left_neighbor.orientations[0].edges[3]
+
+			var next puzzlePiece
+			for _, piece := range remainingPieces {
+				for index, orientation := range piece.orientations {
+					if orientation.edges[2].Int() == left_edge.Int() &&
+						orientation.edges[0].Int() == top_edge.Int() {
+						next = piece.choose(index)
+						break
+					}
+				}
+
+				if next.id != 0 {
+					break
+				}
+			}
+
+			if next.id != 0 {
+				solution[y] = append(solution[y], next)
+				tmp(next)
+				prev = next
+			} else {
+				panic("This should never occur.")
+			}
+		}
+	}
+
+	image := ""
 
 	// for each row of tiles
 	for y_tile := 0; y_tile < len(solution); y_tile++ {
-		// for each of the rows over in that image
+		// for each of the rows in that image
 		for y_row := 0; y_row < len(solution[y_tile][0].data); y_row++ {
 			// for each of the tiles in this slice
 			for _, tile := range solution[y_tile] {
 				line := tile.data[y_row]
-				print(line)
+
+				if y_row > 0 && y_row < len(solution[y_tile][0].data)-1 {
+					pieces := strings.Split(line, "")
+					image += strings.Join(pieces[1:len(pieces)-1], "")
+				}
 			}
-			println()
+			if y_row > 0 && y_row < len(solution[y_tile][0].data)-1 {
+				image += "\n"
+			}
 		}
 	}
-	println()
 
-	return "totoro"
+	// scan line by line for the sea monsters
+	// mark the grid (somehow)
+	// count locations w/o seamonster
+
+	pieces := strings.Split(image, "\n")
+	oriented_image := strings.Join(rotateLeft(pieces[0:len(pieces)-1]), "\n")
+	lines := strings.Split(oriented_image, "\n")
+	gridded := make([][]point, len(lines))
+
+	for y, line := range lines {
+		for _, str := range strings.Split(line, "") {
+			gridded[y] = append(gridded[y], point{str, false})
+		}
+	}
+
+	// walk through gridded 0 to len(gridded) - 3
+	// look for a match, mark those tiles
+	// walk again through gridded
+	// count up all the #'s that are not marked
+	for y, row := range gridded {
+		for x, _ := range row {
+			scanForSeaMonsters(gridded, x, y)
+		}
+	}
+
+	total := 0
+	for _, row := range gridded {
+		for _, point := range row {
+			if point.str == "#" && !point.marked {
+				total += 1
+			}
+		}
+	}
+
+	return oriented_image, total
+}
+
+func scanForSeaMonsters(grid [][]point, x, y int) {
+	if y >= len(grid)-3 || x >= len(grid[0])-20 {
+		return
+	}
+
+	points := [][]int{
+		{0, 1},
+		{1, 2},
+		{4, 2},
+		{5, 1},
+		{6, 1},
+		{7, 2},
+		{10, 2},
+		{11, 1},
+		{12, 1},
+		{13, 2},
+		{16, 2},
+		{17, 1},
+		{18, 1},
+		{19, 1},
+		{18, 0},
+	}
+
+	for _, point := range points {
+		if grid[y+point[1]][x+point[0]].str != "#" {
+			return
+		}
+	}
+
+	for _, point := range points {
+		grid[y+point[1]][x+point[0]].marked = true
+	}
+}
+
+type point struct {
+	str    string
+	marked bool
 }
 
 type puzzlePiece struct {
@@ -321,7 +429,11 @@ type edge struct {
 }
 
 func (e edge) String() string {
-	return strconv.Itoa(value_for(strings.Split(e.data, "")))
+	return strconv.Itoa(e.Int())
+}
+
+func (e edge) Int() int {
+	return value_for(strings.Split(e.data, ""))
 }
 
 func (o orientation) isTopLeftCorner() bool {
